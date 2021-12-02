@@ -2,10 +2,15 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Receipts_Server.DataBaseContext;
+using Receipts_Server.Helpers;
+using Receipts_Server.Services;
+using Receipts_Server.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,13 +27,16 @@ namespace Receipts_Server
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddDbContext<AppDbContext>(optioins =>
+            {
+                optioins.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
+            });
+            services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -41,6 +49,7 @@ namespace Receipts_Server
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseMiddleware<JwtMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
