@@ -17,5 +17,7 @@ namespace Models.Entities
         public int ServiceCompanyId { get; set; }
 
         public ServiceCompany ServiceCompany { get; set; }
+
+        public ICollection<Receipt> Receipts { get; set; }
     }
 }

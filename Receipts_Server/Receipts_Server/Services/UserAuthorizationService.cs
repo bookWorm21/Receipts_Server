@@ -27,24 +27,29 @@ namespace Receipts_Server.Services
 
         public AuthenticateResponse Authenticate(AuthenticateRequest request)
         {
-            AuthenticateResponse response = new AuthenticateResponse();
+            if(request == null)
+            {
+                return null;
+            }
+
+            AuthenticateResponse response;
 
             var owner = _dbContext
                 .Owners
-                .FirstOrDefault(p => p.OwnerId == request.OwnerId);
+                .FirstOrDefault(p => p.Login == request.Login);
 
             if (owner != null)
             {
                 var passwordHash = Convert.ToBase64String(Pbkdf2(request.Password, Convert.FromBase64String(owner.Salt)));
                 if (passwordHash != owner.PasswordHash)
                 {
-                    response.Errors.Add("Uncorrect login or password");
+                    response = new AuthenticateResponse(false, "Uncorrect login or password");
                     return response;
                 }
             }
             else
             {
-                response.Errors.Add("Uncorrect login or password");
+                response = new AuthenticateResponse(false, "Uncorrect login or password");
                 return response;
             }
 
