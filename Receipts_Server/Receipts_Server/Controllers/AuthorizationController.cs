@@ -36,7 +36,19 @@ namespace Receipts_Server.Controllers
         [Route("registration")]
         public IActionResult Registrate(OwnerRegisterData model)
         {
+            var response = _userAuthorizationService.Register(model);
+
+            if (response == null)
+                return BadRequest(new { message = "Register is failed" });
+
             return Ok();
+        }
+
+        [HttpPost]
+        [Route("exit")]
+        public void Exit()
+        {
+            HttpContext.Response.Cookies.Delete("currentOwner");
         }
     }
 }

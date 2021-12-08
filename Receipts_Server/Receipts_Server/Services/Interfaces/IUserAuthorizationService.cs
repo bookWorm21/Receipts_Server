@@ -12,7 +12,7 @@ namespace Receipts_Server.Services.Interfaces
     {
         AuthenticateResponse Authenticate(AuthenticateRequest model);
 
-        Task<AuthenticateResponse> Register(OwnerRegisterData owner);
+        Task<RegistrationResponse> Register(OwnerRegisterData owner);
 
         Owner GetById(int id);
     }

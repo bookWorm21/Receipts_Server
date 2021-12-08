@@ -63,9 +63,45 @@ namespace Receipts_Server.Services
             return _dbContext.Owners.FirstOrDefault(p => p.OwnerId == id);
         }
 
-        public Task<AuthenticateResponse> Register(OwnerRegisterData owner)
+        public async Task<RegistrationResponse> Register(OwnerRegisterData ownerData)
         {
-            throw new NotImplementedException();
+            if (ownerData == null)
+                return null;
+
+            RegistrationResponse response = new RegistrationResponse();
+
+            if (ownerData.FirstName.Length == 0 || ownerData.LastName.Length == 0 ||
+                ownerData.Login.Length == 0 || ownerData.Password.Length == 0)
+            {
+                response.IsSuccessfull = false;
+                response.Error = "Поля не должны быть пустыми";
+            }
+            else
+            {
+                Owner owner = _dbContext.Owners.FirstOrDefault(p => p.Login == ownerData.Login);
+                if(owner != null)
+                {
+                    response.IsSuccessfull = false;
+                    response.Error = "Пользователь с таким логином уже существует";
+                }
+                else
+                {
+                    owner.Login = ownerData.Login;
+                    owner.LastName = ownerData.LastName;
+                    owner.FirstName = ownerData.FirstName;
+                    owner.Patronymic = ownerData.Patronymic;
+
+                    var salt = GetRandomBytes();
+                    owner.PasswordHash = Convert.ToBase64String(Pbkdf2(ownerData.Password, salt));
+                    owner.Salt = Convert.ToBase64String(salt);
+
+                    _dbContext.Owners.Add(owner);
+
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
+
+            return response;
         }
 
         private byte[] GetRandomBytes(int size = 32)
