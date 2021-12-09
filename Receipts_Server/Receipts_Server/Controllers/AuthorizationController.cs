@@ -29,6 +29,7 @@ namespace Receipts_Server.Controllers
             if (response == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
 
+            HttpContext.Response.Cookies.Append("currentOwner", response.OwnerId.ToString());
             return Ok(response);
         }
 
@@ -41,7 +42,7 @@ namespace Receipts_Server.Controllers
             if (response == null)
                 return BadRequest(new { message = "Register is failed" });
 
-            return Ok();
+            return Ok(response);
         }
 
         [HttpPost]

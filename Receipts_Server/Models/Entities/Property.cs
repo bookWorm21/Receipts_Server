@@ -15,6 +15,9 @@ namespace Models.Entities
         [MaxLength(30)]
         public int HouseNumber { get; set; }
 
+        [Required]
+        public int Square { get; set; }
+
         public int OwnerId { get; set; }
 
         public Owner Owner { get; set; }

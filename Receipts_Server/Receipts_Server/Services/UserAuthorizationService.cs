@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Models.Entities;
 using Models.Request;
@@ -32,7 +33,7 @@ namespace Receipts_Server.Services
                 return null;
             }
 
-            AuthenticateResponse response;
+            AuthenticateResponse response = new AuthenticateResponse();
 
             var owner = _dbContext
                 .Owners
@@ -53,6 +54,7 @@ namespace Receipts_Server.Services
                 return response;
             }
 
+            response.OwnerId = owner.OwnerId;
             var token = _configuration.GenerateJwtToken(owner);
             return new AuthenticateResponse(token);
         }
@@ -63,7 +65,7 @@ namespace Receipts_Server.Services
             return _dbContext.Owners.FirstOrDefault(p => p.OwnerId == id);
         }
 
-        public async Task<RegistrationResponse> Register(OwnerRegisterData ownerData)
+        public RegistrationResponse Register(OwnerRegisterData ownerData)
         {
             if (ownerData == null)
                 return null;
@@ -86,6 +88,7 @@ namespace Receipts_Server.Services
                 }
                 else
                 {
+                    owner = new Owner();
                     owner.Login = ownerData.Login;
                     owner.LastName = ownerData.LastName;
                     owner.FirstName = ownerData.FirstName;
@@ -97,7 +100,8 @@ namespace Receipts_Server.Services
 
                     _dbContext.Owners.Add(owner);
 
-                    await _dbContext.SaveChangesAsync();
+                    response.IsSuccessfull = true;
+                    _dbContext.SaveChanges();
                 }
             }
 

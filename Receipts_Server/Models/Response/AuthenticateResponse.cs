@@ -6,6 +6,8 @@ namespace Models.Response
 {
     public class AuthenticateResponse
     {
+        public int OwnerId { get; set; }
+
         public string Error { get; set; }
 
         public bool IsSuccessfull { get; set; }

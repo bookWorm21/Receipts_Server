@@ -16,6 +16,9 @@ namespace Models.Entities
         [Column(TypeName = "decimal(7, 2)")]
         public decimal Volume { get; set; }
 
+        [Required]
+        public bool Status { get; set; }
+
         public int ServiceId { get; set; }
 
         public Service Service {get; set;}
