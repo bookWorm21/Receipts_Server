@@ -56,7 +56,7 @@ namespace Receipts_Server.Services
 
             response.OwnerId = owner.OwnerId;
             var token = _configuration.GenerateJwtToken(owner);
-            return new AuthenticateResponse(token);
+            return new AuthenticateResponse(token, owner.OwnerId);
         }
 
 

@@ -34,8 +34,9 @@ namespace Models.Response
             IsSuccessfull = isSuccessfull;
         }
 
-        public AuthenticateResponse(string token)
+        public AuthenticateResponse(string token, int ownerId)
         {
+            OwnerId = ownerId;
             Token = token;
             IsSuccessfull = true;
         }

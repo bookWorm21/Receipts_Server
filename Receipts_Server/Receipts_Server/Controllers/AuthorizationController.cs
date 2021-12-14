@@ -45,7 +45,7 @@ namespace Receipts_Server.Controllers
             return Ok(response);
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("exit")]
         public void Exit()
         {

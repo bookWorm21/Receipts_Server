@@ -35,6 +35,7 @@ namespace Receipts_Server
                 optioins.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
             });
             services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
+            services.AddTransient<IOwnerInfoService, OwnerInfoService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
