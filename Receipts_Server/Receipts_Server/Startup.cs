@@ -36,6 +36,7 @@ namespace Receipts_Server
             });
             services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
             services.AddTransient<IOwnerInfoService, OwnerInfoService>();
+            services.AddTransient<IChangingOwnerDataService, ChanginOwnerDataService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

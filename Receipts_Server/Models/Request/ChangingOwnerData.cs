@@ -19,9 +19,6 @@ namespace Models.Request
         public string Patronymic { get; set; }
 
         [Required]
-        public string OldPassword { get; set; }
-
-        [Required]
-        public string NewPassword { get; set; }
+        public string Password { get; set; }
     }
 }
