@@ -16,6 +16,10 @@ namespace Models.Entities
         public int HouseNumber { get; set; }
 
         [Required]
+        [MaxLength(30)]
+        public int ApartmentNumber { get; set; }
+
+        [Required]
         public int Square { get; set; }
 
         public int OwnerId { get; set; }

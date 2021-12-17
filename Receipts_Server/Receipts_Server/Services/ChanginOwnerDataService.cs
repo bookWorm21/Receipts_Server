@@ -34,14 +34,15 @@ namespace Receipts_Server.Services
             else if(ownerData.Login.Contains(' ') || ownerData.FirstName.Contains(' ') || ownerData.LastName.Contains(' ')
                 || ownerData.Password.Contains(' ') || ownerData.Patronymic.Contains(' '))
             {
-                response.Error = "Поля не должны содержать пароля";
+                response.Error = "Поля не должны содержать пробелов";
             }
             else
             {
                 Owner owner = _dbContext.Owners.FirstOrDefault(p => p.OwnerId == ownerId);
                 if(owner != null)
                 {
-                    if (_dbContext.Owners.FirstOrDefault(p => p.Login == ownerData.Login) != null)
+                    if (_dbContext.Owners.FirstOrDefault(p => p.Login == ownerData.Login 
+                    && p.OwnerId != owner.OwnerId) != null)
                     {
                         response.Error = "Этот логин уже используется";
                     }

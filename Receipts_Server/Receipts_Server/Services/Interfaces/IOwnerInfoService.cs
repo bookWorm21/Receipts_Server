@@ -9,5 +9,7 @@ namespace Receipts_Server.Services.Interfaces
     public interface IOwnerInfoService
     {
         OwnerInfo GetOwnerInfo(int ownerId);
+
+        PropertiesInfo[] GetOwnerProperties(int ownerId);
     }
 }

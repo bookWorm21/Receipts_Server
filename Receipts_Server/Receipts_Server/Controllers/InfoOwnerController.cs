@@ -42,5 +42,28 @@ namespace Receipts_Server.Controllers
 
             return Ok(owner);
         }
+
+        [HttpGet]
+        [Route("get_owner_properties")]
+        [OwnerAuthorization]
+        public IActionResult GetOwnerPropeties()
+        {
+            int id;
+            PropertiesInfo[] properties = null;
+            if (HttpContext.Request.Cookies.TryGetValue("currentOwner", out string value))
+            {
+                if (int.TryParse(value, out id))
+                {
+                    properties = _ownerInfoService.GetOwnerProperties(id);
+                }
+            }
+
+            if (properties == null)
+            {
+                return BadRequest(new { message = "Не удалось найти ифнормацию" });
+            }
+
+            return Ok(properties);
+        }
     }
 }
