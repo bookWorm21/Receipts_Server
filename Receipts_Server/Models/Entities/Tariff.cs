@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -19,8 +20,6 @@ namespace Models.Entities
         [Column(TypeName = "decimal(7, 2)")]
         public decimal Volume{ get; set; }
 
-        public int ServiceId { get; set; }
-
-        public Service Service { get; set; }
+        public ICollection<TariffPlan> TariffPlans { get; set; }
     }
 }

@@ -59,11 +59,12 @@ namespace Receipts_Server.Services
                     propertyInfo.Debt = _dbContext
                         .Receipts
                         .Join(_dbContext.Services, rec => rec.ServiceId, ser => ser.ServiceId, (rec, ser) => new { rec, ser })
-                        .Join(_dbContext.Tariffs, rec => rec.ser.ServiceId, tar => tar.ServiceId, (rec, tar) => new { rec, tar })
-                        .Where(p => p.rec.rec.PropertyId == property.pr.pr.PropertyId)
-                        .Where(p => p.rec.rec.Status == false)
-                        .Where(p => p.rec.rec.ChargeDate >= p.tar.BeginData && p.rec.rec.ChargeDate <= p.tar.EndData)
-                        .Sum(s => s.tar.Volume * s.rec.rec.Volume);
+                        .Join(_dbContext.TariffPlans, rec => rec.rec.ServiceId, plan => plan.ServiceId, (rec, plan) => new { rec, plan })
+                        .Join(_dbContext.Tariffs, rec => rec.plan.TariffId, tar => tar.TariffId, (rec, tar) => new { rec, tar })
+                        .Where(p => p.rec.rec.rec.PropertyId == property.pr.pr.PropertyId)
+                        .Where(p => p.rec.rec.rec.Status == false)
+                        .Where(p => p.rec.rec.rec.ChargeDate >= p.tar.BeginData && p.rec.rec.rec.ChargeDate <= p.tar.EndData)
+                        .Sum(s => s.tar.Volume * s.rec.rec.rec.Volume);
 
                     results.Add(propertyInfo);
                 }

@@ -27,6 +27,8 @@ namespace Receipts_Server.DataBaseContext
 
         public DbSet<ServiceType> ServiceTypes { get; set; }
 
+        public DbSet<TariffPlan> TariffPlans { get; set; }
+
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 

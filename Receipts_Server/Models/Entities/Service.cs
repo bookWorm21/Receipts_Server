@@ -19,5 +19,7 @@ namespace Models.Entities
         public int ServiceTypeId { get; set; }
 
         public ServiceType ServiceType { get; set; }
+
+        public ICollection<TariffPlan> TariffPlans { get; set; }
     }
 }
