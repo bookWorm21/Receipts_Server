@@ -8,10 +8,6 @@ namespace Models.Entities
         [Key]
         public int ServiceId { get; set; }
 
-        [Required]
-        [MaxLength(30)]
-        public string Name { get; set; }
-
         public ICollection<Tariff> Tariffs { get; set; }
 
         public int ServiceCompanyId { get; set; }

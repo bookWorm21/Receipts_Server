@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Receipts_Server.DataBaseContext;
@@ -9,9 +10,10 @@ using Receipts_Server.DataBaseContext;
 namespace Receipts_Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211219093824_change_relation_service_with_tariff")]
+    partial class change_relation_service_with_tariff
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -180,10 +182,18 @@ namespace Receipts_Server.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<int>("ServiceCompanyId")
                         .HasColumnType("integer");
 
                     b.Property<int>("ServiceTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TariffId")
                         .HasColumnType("integer");
 
                     b.HasKey("ServiceId");
@@ -191,6 +201,8 @@ namespace Receipts_Server.Migrations
                     b.HasIndex("ServiceCompanyId");
 
                     b.HasIndex("ServiceTypeId");
+
+                    b.HasIndex("TariffId");
 
                     b.ToTable("Services");
                 });
@@ -252,15 +264,10 @@ namespace Receipts_Server.Migrations
                     b.Property<DateTime>("EndData")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("ServiceId")
-                        .HasColumnType("integer");
-
                     b.Property<decimal>("Volume")
                         .HasColumnType("numeric(7,2)");
 
                     b.HasKey("TariffId");
-
-                    b.HasIndex("ServiceId");
 
                     b.ToTable("Tariffs");
                 });
@@ -317,20 +324,17 @@ namespace Receipts_Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ServiceCompany");
-
-                    b.Navigation("ServiceType");
-                });
-
-            modelBuilder.Entity("Models.Entities.Tariff", b =>
-                {
-                    b.HasOne("Models.Entities.Service", "Service")
-                        .WithMany("Tariffs")
-                        .HasForeignKey("ServiceId")
+                    b.HasOne("Models.Entities.Tariff", "Tariff")
+                        .WithMany("Services")
+                        .HasForeignKey("TariffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Service");
+                    b.Navigation("ServiceCompany");
+
+                    b.Navigation("ServiceType");
+
+                    b.Navigation("Tariff");
                 });
 
             modelBuilder.Entity("Models.Entities.City", b =>
@@ -346,8 +350,6 @@ namespace Receipts_Server.Migrations
             modelBuilder.Entity("Models.Entities.Service", b =>
                 {
                     b.Navigation("Receipts");
-
-                    b.Navigation("Tariffs");
                 });
 
             modelBuilder.Entity("Models.Entities.ServiceCompany", b =>
@@ -356,6 +358,11 @@ namespace Receipts_Server.Migrations
                 });
 
             modelBuilder.Entity("Models.Entities.ServiceType", b =>
+                {
+                    b.Navigation("Services");
+                });
+
+            modelBuilder.Entity("Models.Entities.Tariff", b =>
                 {
                     b.Navigation("Services");
                 });
