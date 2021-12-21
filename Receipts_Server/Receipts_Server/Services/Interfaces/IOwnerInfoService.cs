@@ -1,4 +1,5 @@
-﻿using Models.Response;
+﻿using Models.Request;
+using Models.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,9 @@ namespace Receipts_Server.Services.Interfaces
         OwnerInfo GetOwnerInfo(int ownerId);
 
         PropertiesInfo[] GetOwnerProperties(int ownerId);
+
+        ServiceTypeInfo[] GetServiceTypes();
+
+        CampaniesInfoResponse[] GetCompanies(CampaniesInfoRequest request, int ownerId);
     }
 }

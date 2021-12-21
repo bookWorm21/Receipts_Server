@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Models.Request;
 using Models.Response;
 using Receipts_Server.Helpers.Attributes;
 using Receipts_Server.Services.Interfaces;
@@ -64,6 +65,36 @@ namespace Receipts_Server.Controllers
             }
 
             return Ok(properties);
+        }
+
+        [HttpPost]
+        [OwnerAuthorization]
+        [Route("get_companies")]
+        public IActionResult GetCompanies(CampaniesInfoRequest request)
+        {
+            int id;
+            CampaniesInfoResponse[] campanies = null;
+            if (HttpContext.Request.Cookies.TryGetValue("currentOwner", out string value))
+            {
+                if (int.TryParse(value, out id))
+                {
+                    campanies = _ownerInfoService.GetCompanies(request, id);
+                }
+            }
+
+            if (campanies == null)
+            {
+                return BadRequest(new { message = "Не удалось найти ифнормацию" });
+            }
+
+            return Ok(campanies);
+        }
+
+        [HttpGet]
+        [Route("get_service_types")]
+        public IActionResult GetServiceTypes()
+        {
+            return Ok(_ownerInfoService.GetServiceTypes());
         }
     }
 }
