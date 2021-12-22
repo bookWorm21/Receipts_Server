@@ -16,5 +16,7 @@ namespace Receipts_Server.Services.Interfaces
         ServiceTypeInfo[] GetServiceTypes();
 
         CampaniesInfoResponse[] GetCompanies(CampaniesInfoRequest request, int ownerId);
+
+        ReceiptInfoResponse[] GetReceipts(ReceiptsInfoRequest request, int ownerId);
     }
 }

@@ -92,7 +92,6 @@ namespace Receipts_Server.Services
                     .ServiceCompanies
                     .Join(_dbContext.Services, com => com.ServiceCompanyId, ser => ser.ServiceCompanyId, (com, ser) => new { com, ser })
                     .Join(_dbContext.ServiceTypes, com => com.ser.ServiceTypeId, typ => typ.ServiceTypeId, (com, typ) => new { com, typ })
-                    .Where(p => request.AllServiceTypes || p.typ.ServiceTypeId == request.ServiceTypeId)
                     .Where(p => p.com.com.Name.ToLower().Contains(request.Substring.ToLower()))
                     .AsEnumerable()
                     .GroupBy(p => new { p.com.com.ServiceCompanyId, p.com.com.Name, p.com.com.Mail, p.com.com.PhoneNumber }))
@@ -102,8 +101,11 @@ namespace Receipts_Server.Services
                     addingCompany.Name = company.Key.Name;
                     addingCompany.PhoneNumber = company.Key.PhoneNumber;
                     addingCompany.Mail = company.Key.Mail;
-                    addingCompany.ServiceTypes = company.Select(p => p.typ.ServiceTypeName).ToList();
-                    companies.Add(addingCompany);
+                    if (request.AllServiceTypes || company.Select(p => p.typ).Any(p => p.ServiceTypeId == request.ServiceTypeId))
+                    {
+                        addingCompany.ServiceTypes = company.Select(p => p.typ).Distinct().Select(p => p.ServiceTypeName).ToList();
+                        companies.Add(addingCompany);
+                    }
                 }
             }
             else
@@ -115,8 +117,7 @@ namespace Receipts_Server.Services
                     .Join(_dbContext.ServiceCompanies, rec => rec.ser.ServiceCompanyId, com => com.ServiceCompanyId, (rec, com) => new { rec, com })
                     .Join(_dbContext.ServiceTypes, rec => rec.rec.ser.ServiceTypeId, typ => typ.ServiceTypeId, (rec, typ) => new { rec, typ })
                     .Where(p => p.rec.rec.rec.prop.OwnerId == ownerId)
-                    .Where(p=>p.rec.com.Name.ToLower().Contains(request.Substring.ToLower()))
-                    .Where(p => request.AllServiceTypes || p.typ.ServiceTypeId == request.ServiceTypeId)
+                    .Where(p => p.rec.com.Name.ToLower().Contains(request.Substring.ToLower()))
                     .AsEnumerable()
                     .GroupBy(p => new { p.rec.com.ServiceCompanyId, p.rec.com.Name, p.rec.com.Mail, p.rec.com.PhoneNumber }))
                 {
@@ -125,12 +126,59 @@ namespace Receipts_Server.Services
                     addingCompany.Name = company.Key.Name;
                     addingCompany.PhoneNumber = company.Key.PhoneNumber;
                     addingCompany.Mail = company.Key.Mail;
-                    addingCompany.ServiceTypes = company.Select(p => p.typ.ServiceTypeName).ToList();
-                    companies.Add(addingCompany);
+                    if (request.AllServiceTypes || company.Select(p => p.typ).Any(p => p.ServiceTypeId == request.ServiceTypeId))
+                    {
+                        addingCompany.ServiceTypes = company.Select(p => p.typ).Distinct().Select(p => p.ServiceTypeName).ToList();
+                        companies.Add(addingCompany);
+                    }
                 }
             }
 
             return companies.ToArray();
+        }
+
+        public ReceiptInfoResponse[] GetReceipts(ReceiptsInfoRequest request, int ownerId)
+        {
+            if (request == null)
+                return null;
+
+            List<ReceiptInfoResponse> receipts = new List<ReceiptInfoResponse>();
+
+            var tariffs = _dbContext.Tariffs.Join(_dbContext.TariffPlans, tar => tar.TariffId, plan => plan.TariffId, (tar, plan) => new { tar, plan });
+
+            foreach (var receipt in _dbContext
+                .Properties
+                .Join(_dbContext.Receipts, pr => pr.PropertyId, rec => rec.PropertyId, (pr, rec) => new { pr, rec })
+                .Join(_dbContext.Services, rec => rec.rec.ServiceId, ser => ser.ServiceId, (rec, ser) => new { rec, ser })
+                .Join(_dbContext.ServiceCompanies, rec => rec.ser.ServiceCompanyId, com => com.ServiceCompanyId, (rec, com) => new { rec, com })
+                .Join(_dbContext.ServiceTypes, rec => rec.rec.ser.ServiceTypeId, typ => typ.ServiceTypeId, (rec, typ) => new {rec, typ})
+                .Join(_dbContext.TariffPlans, rec=>rec.rec.rec.ser.ServiceId, plan=>plan.ServiceId, (rec, plan)=> new { rec, plan })
+                .Join(_dbContext.Tariffs, rec=>rec.plan.TariffId, tar=>tar.TariffId, (rec, tar)=>new { rec, tar })
+                .Join(_dbContext.Cities, rec=>rec.rec.rec.rec.rec.rec.pr.CityId, cit=>cit.CityId, (rec, cit)=> new { rec, cit })
+                .Where(p=>p.rec.rec.rec.rec.rec.rec.pr.OwnerId == ownerId)
+                .Where(p=>p.rec.rec.rec.rec.rec.rec.rec.ChargeDate >= p.rec.tar.BeginData && 
+                p.rec.rec.rec.rec.rec.rec.rec.ChargeDate <= p.rec.tar.EndData))
+            {
+                var addingReceipt = new ReceiptInfoResponse();
+                addingReceipt.Number = receipt.rec.rec.rec.rec.rec.rec.rec.ReceiptId;
+                addingReceipt.CompanyName = receipt.rec.rec.rec.rec.com.Name;
+                addingReceipt.ServiceTypeName = receipt.rec.rec.rec.typ.ServiceTypeName;
+                addingReceipt.TariffVolume = receipt.rec.tar.Volume;
+                addingReceipt.ServiceVolume = receipt.rec.rec.rec.rec.rec.rec.rec.Volume;
+                addingReceipt.Sum = addingReceipt.TariffVolume * addingReceipt.ServiceVolume;
+                addingReceipt.Status = receipt.rec.rec.rec.rec.rec.rec.rec.Status;
+                var property = receipt.rec.rec.rec.rec.rec.rec.pr;
+                addingReceipt.PropertyId = property.PropertyId;
+                addingReceipt.PropertyAddress = string.Concat
+                        (receipt.cit.Name, ", ", property.Street, " ",
+                        property.HouseNumber, ", ", property.ApartmentNumber);
+                addingReceipt.ReceiptDate = receipt.rec.rec.rec.rec.rec.rec.rec.ChargeDate;
+
+
+                receipts.Add(addingReceipt);
+            }
+
+            return receipts.ToArray();
         }
     }
 }

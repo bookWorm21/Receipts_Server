@@ -8,8 +8,6 @@ namespace Models.Entities
         [Key]
         public int ServiceId { get; set; }
 
-        public ICollection<Tariff> Tariffs { get; set; }
-
         public int ServiceCompanyId { get; set; }
 
         public ServiceCompany ServiceCompany { get; set; }

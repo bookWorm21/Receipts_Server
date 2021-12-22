@@ -90,6 +90,29 @@ namespace Receipts_Server.Controllers
             return Ok(campanies);
         }
 
+        [HttpPost]
+        [OwnerAuthorization]
+        [Route("get_receipts")]
+        public IActionResult GetReceipts(ReceiptsInfoRequest request)
+        {
+            int id;
+            ReceiptInfoResponse[] receipts = null;
+            if (HttpContext.Request.Cookies.TryGetValue("currentOwner", out string value))
+            {
+                if (int.TryParse(value, out id))
+                {
+                    receipts = _ownerInfoService.GetReceipts(request, id);
+                }
+            }
+
+            if (receipts == null)
+            {
+                return BadRequest(new { message = "Не удалось найти ифнормацию" });
+            }
+
+            return Ok(receipts);
+        }
+
         [HttpGet]
         [Route("get_service_types")]
         public IActionResult GetServiceTypes()
