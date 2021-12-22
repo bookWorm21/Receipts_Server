@@ -157,7 +157,13 @@ namespace Receipts_Server.Services
                 .Join(_dbContext.Cities, rec=>rec.rec.rec.rec.rec.rec.pr.CityId, cit=>cit.CityId, (rec, cit)=> new { rec, cit })
                 .Where(p=>p.rec.rec.rec.rec.rec.rec.pr.OwnerId == ownerId)
                 .Where(p=>p.rec.rec.rec.rec.rec.rec.rec.ChargeDate >= p.rec.tar.BeginData && 
-                p.rec.rec.rec.rec.rec.rec.rec.ChargeDate <= p.rec.tar.EndData))
+                p.rec.rec.rec.rec.rec.rec.rec.ChargeDate <= p.rec.tar.EndData)
+                .Where(p=>request.AllProperties || request.PropertyId == p.rec.rec.rec.rec.rec.rec.pr.PropertyId)
+                .Where(p=>request.AllServices || request.ServiceId == p.rec.rec.rec.typ.ServiceTypeId)
+                .Where(p=>request.Status == ReceiptStatusFilter.Any
+                || (request.Status == ReceiptStatusFilter.Paid && p.rec.rec.rec.rec.rec.rec.rec.Status == true)
+                || (request.Status == ReceiptStatusFilter.NotPaid && p.rec.rec.rec.rec.rec.rec.rec.Status == false))
+                )
             {
                 var addingReceipt = new ReceiptInfoResponse();
                 addingReceipt.Number = receipt.rec.rec.rec.rec.rec.rec.rec.ReceiptId;
